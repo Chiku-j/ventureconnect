@@ -41,6 +41,23 @@ export type Geography =
   | "Africa"
   | "LATAM";
 
+export type InstitutionTier = "Tier 1 (IIT/IIM/Ivy)" | "Tier 2 (NIT/State)" | "Tier 3 / Other";
+
+// ─── Team Member (M5) ────────────────────────────────────────────────────────
+
+export interface TeamMember {
+  name: string;
+  role: string;
+  institution: string;
+  institutionTier: InstitutionTier;
+  degree: string;
+  yearsExperience: number;
+  priorExits: number;
+  linkedinUrl: string;
+  linkedinConnections: number;
+  domainExpertiseYears: number;
+}
+
 // ─── Startup Onboarding ──────────────────────────────────────────────────────
 
 export interface StartupOnboarding {
@@ -52,12 +69,18 @@ export interface StartupOnboarding {
   sector: Sector;
   geography: Geography;
 
-  // Step 2: Team
+  // Step 2: Team (enhanced M5)
   founderName: string;
   founderRole: string;
   founderBio: string;
+  founderPriorExits: number;
+  founderDomainYears: number;
+  founderInstitution: string;
+  founderInstitutionTier: InstitutionTier;
+  founderLinkedinUrl: string;
+  founderLinkedinConnections: number;
   teamSize: number;
-  keyMembers: string;
+  teamMembers: TeamMember[];
   advisors: string;
 
   // Step 3: Business Model
@@ -89,6 +112,12 @@ export interface StartupOnboarding {
   valuation: string;
 }
 
+export const EMPTY_TEAM_MEMBER: TeamMember = {
+  name: "", role: "", institution: "", institutionTier: "Tier 2 (NIT/State)",
+  degree: "", yearsExperience: 0, priorExits: 0, linkedinUrl: "",
+  linkedinConnections: 0, domainExpertiseYears: 0,
+};
+
 export const EMPTY_ONBOARDING: StartupOnboarding = {
   companyName: "",
   tagline: "",
@@ -99,8 +128,14 @@ export const EMPTY_ONBOARDING: StartupOnboarding = {
   founderName: "",
   founderRole: "",
   founderBio: "",
+  founderPriorExits: 0,
+  founderDomainYears: 0,
+  founderInstitution: "",
+  founderInstitutionTier: "Tier 2 (NIT/State)",
+  founderLinkedinUrl: "",
+  founderLinkedinConnections: 0,
   teamSize: 1,
-  keyMembers: "",
+  teamMembers: [],
   advisors: "",
   businessModel: "B2B SaaS",
   revenueModel: "",
@@ -152,11 +187,13 @@ export interface MatchBreakdown {
   ticketSize: number;
   geography: number;
   businessModel: number;
+  people: number;
 }
 
 export interface VCMatch {
   vc: VCFirm;
   fitScore: number;
+  peopleScore: number;
   breakdown: MatchBreakdown;
   matchReasons: string[];
 }
@@ -235,4 +272,89 @@ export interface VCPreferences {
   watchlist: string[]; // startup IDs
   dealNotes: Record<string, string>;
   dealStatuses: Record<string, SubmissionStatus>;
+}
+
+// ─── CRM Types (M7) ──────────────────────────────────────────────────────────
+
+export type CRMStatus =
+  | "Not Contacted"
+  | "Email Sent"
+  | "Replied"
+  | "Meeting Scheduled"
+  | "Passed"
+  | "Ghosted";
+
+export interface CRMActivity {
+  id: string;
+  type: "email" | "note" | "meeting" | "status_change";
+  description: string;
+  timestamp: string;
+}
+
+export interface CRMContact {
+  id: string;
+  vcId: string;
+  vcName: string;
+  status: CRMStatus;
+  lastActivity: string;
+  followUpDate?: string;
+  notes: string;
+  timeline: CRMActivity[];
+  templateUsed?: string;
+}
+
+export interface CRMTemplate {
+  id: string;
+  name: string;
+  subject: string;
+  body: string; // uses {{company}}, {{founderName}}, {{vcName}} etc.
+}
+
+// ─── Founder Network Types (M8) ───────────────────────────────────────────────
+
+export type PostType = "Update" | "Ask" | "Resource";
+export type ReactionType = "Helpful" | "Inspiring" | "Relatable";
+
+export interface NetworkPost {
+  id: string;
+  authorId: string;
+  authorName: string;
+  authorSector: string;
+  authorStage: string;
+  type: PostType;
+  content: string;
+  reactions: Record<ReactionType, string[]>; // reaction -> list of userIds who reacted
+  createdAt: string;
+}
+
+export interface NetworkProfile {
+  id: string;
+  name: string;
+  companyName: string;
+  role: string;
+  sector: Sector;
+  stage: FundingStage;
+  geography: Geography;
+  expertiseTags: string[];
+  needRightNow: string;
+  openToConnect: boolean;
+  bio: string;
+  connections: string[]; // profile IDs
+}
+
+export interface DMMessage {
+  id: string;
+  fromId: string;
+  toId: string;
+  content: string;
+  timestamp: string;
+  read: boolean;
+}
+
+export interface DMThread {
+  id: string; // `${userId1}-${userId2}` sorted
+  participants: string[];
+  messages: DMMessage[];
+  lastMessage: string;
+  lastTimestamp: string;
 }

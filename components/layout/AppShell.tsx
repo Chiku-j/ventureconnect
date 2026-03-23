@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, FileText, Users, Briefcase, BookOpen,
-  Star, ChevronRight, Zap, TrendingUp, Eye
+  Star, ChevronRight, Zap, TrendingUp, Database, Mail, Network
 } from "lucide-react";
 import NotificationPanel from "./NotificationPanel";
 import { UserRole } from "@/lib/types";
@@ -18,6 +18,9 @@ const STARTUP_NAV = [
   { href: "/startup/report", label: "My Report", icon: BookOpen },
   { href: "/startup/matches", label: "VC Matches", icon: Users },
   { href: "/startup/submissions", label: "My Submissions", icon: Briefcase },
+  { href: "/startup/vc-database", label: "VC Database", icon: Database },
+  { href: "/startup/crm", label: "Outreach CRM", icon: Mail },
+  { href: "/startup/network", label: "Founder Network", icon: Network },
 ];
 
 const VC_NAV = [
@@ -141,7 +144,7 @@ export default function AppShell({
         {/* Footer */}
         <div style={{ padding: 16, borderTop: "1px solid #1e1e2a" }}>
           <p style={{ fontSize: 11, color: "var(--text-muted)", margin: 0 }}>
-            VentureConnect MVP • v1.0
+          VentureConnect MVP • v1.1
           </p>
         </div>
       </aside>

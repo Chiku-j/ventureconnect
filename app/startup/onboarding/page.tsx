@@ -158,41 +158,204 @@ export default function StartupOnboardingPage() {
             </div>
           )}
 
-          {/* Step 2 */}
+          {/* Step 2 — Enhanced (M5 People Scoring) */}
           {step === 2 && (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-              <Field label="Founder Name" required>
-                <input {...inp("founderName")} placeholder="e.g. Arjun Mehta" />
-              </Field>
-              <Field label="Founder Role" required>
-                <input {...inp("founderRole")} placeholder="e.g. CEO & Co-Founder" />
-              </Field>
-              <div style={{ gridColumn: "1/-1" }}>
-                <Field label="Founder Bio">
-                  <textarea {...inp("founderBio")} rows={3} placeholder="Background, previous role, education..." style={{ resize: "vertical" }} />
-                </Field>
+            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+              {/* LinkedIn mock connect */}
+              <div style={{
+                background: "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(14,116,191,0.06))",
+                border: "1px solid rgba(99,102,241,0.2)",
+                borderRadius: 12, padding: 16,
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+              }}>
+                <div>
+                  <p style={{ fontWeight: 700, fontSize: 14, margin: "0 0 3px" }}>
+                    <span style={{ color: "#0e74bf" }}>in</span> Connect LinkedIn
+                  </p>
+                  <p style={{ color: "var(--text-muted)", fontSize: 12, margin: 0 }}>
+                    Auto-populate your profile, education & connections
+                  </p>
+                </div>
+                <button
+                  className="btn-secondary"
+                  style={{ fontSize: 12, padding: "8px 16px", borderColor: "rgba(14,116,191,0.4)", color: "#60a5fa" }}
+                  onClick={() => {
+                    const mock = {
+                      founderName: "Arjun Mehta",
+                      founderRole: "CEO & Co-founder",
+                      founderBio: "Ex-Goldman Sachs, IIT Bombay. Building AI-native finance for SMEs.",
+                      founderInstitution: "IIT Bombay",
+                      founderInstitutionTier: "Tier 1 (IIT/IIM/Ivy)" as const,
+                      founderPriorExits: 1,
+                      founderDomainYears: 8,
+                      founderLinkedinUrl: "https://linkedin.com/in/arjunmehta",
+                      founderLinkedinConnections: 1200,
+                    };
+                    const next = { ...data, ...mock };
+                    setData(next);
+                    save(next, step);
+                  }}
+                >
+                  🔗 Auto-fill from LinkedIn
+                </button>
               </div>
-              <Field label="Team Size">
-                <input
-                  className="input-base"
-                  type="number"
-                  min={1}
-                  value={data.teamSize}
-                  onChange={(e) => set("teamSize", parseInt(e.target.value, 10))}
-                />
+
+              {/* Founder section */}
+              <div>
+                <p style={{ fontWeight: 700, fontSize: 14, margin: "0 0 14px", color: "#818cf8" }}>
+                  👤 Founder Profile
+                </p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                  <Field label="Full Name" required>
+                    <input className="input-base" value={data.founderName} onChange={e => set("founderName", e.target.value)} placeholder="Arjun Mehta" />
+                  </Field>
+                  <Field label="Role / Title" required>
+                    <input className="input-base" value={data.founderRole} onChange={e => set("founderRole", e.target.value)} placeholder="CEO & Co-founder" />
+                  </Field>
+                  <Field label="Institution / University">
+                    <input className="input-base" value={data.founderInstitution} onChange={e => set("founderInstitution", e.target.value)} placeholder="IIT Bombay, Stanford..." />
+                  </Field>
+                  <Field label="Institution Tier">
+                    <select className="input-base" value={data.founderInstitutionTier} onChange={e => set("founderInstitutionTier", e.target.value)}>
+                      <option>Tier 1 (IIT/IIM/Ivy)</option>
+                      <option>Tier 2 (NIT/State)</option>
+                      <option>Tier 3 / Other</option>
+                    </select>
+                  </Field>
+                  <Field label="Prior Exits">
+                    <input className="input-base" type="number" min={0} max={10} value={data.founderPriorExits} onChange={e => set("founderPriorExits", parseInt(e.target.value) || 0)} />
+                  </Field>
+                  <Field label="Domain Expertise (Years)">
+                    <input className="input-base" type="number" min={0} max={40} value={data.founderDomainYears} onChange={e => set("founderDomainYears", parseInt(e.target.value) || 0)} />
+                  </Field>
+                  <Field label="LinkedIn URL">
+                    <input className="input-base" value={data.founderLinkedinUrl} onChange={e => set("founderLinkedinUrl", e.target.value)} placeholder="https://linkedin.com/in/..." />
+                  </Field>
+                  <Field label="LinkedIn Connections">
+                    <input className="input-base" type="number" min={0} value={data.founderLinkedinConnections} onChange={e => set("founderLinkedinConnections", parseInt(e.target.value) || 0)} placeholder="500" />
+                  </Field>
+                  <div style={{ gridColumn: "1/-1" }}>
+                    <Field label="Short Bio">
+                      <textarea className="input-base" value={data.founderBio} onChange={e => set("founderBio", e.target.value)} rows={2} placeholder="Background, previous roles, domain expertise..." style={{ resize: "vertical" }} />
+                    </Field>
+                  </div>
+                </div>
+              </div>
+
+              {/* Team members */}
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                  <p style={{ fontWeight: 700, fontSize: 14, margin: 0, color: "#818cf8" }}>
+                    👥 Core Team ({(data.teamMembers ?? []).length}/3)
+                  </p>
+                  {(data.teamMembers ?? []).length < 3 && (
+                    <button
+                      className="btn-secondary"
+                      style={{ fontSize: 12, padding: "5px 12px" }}
+                      onClick={() => {
+                        const members = [...(data.teamMembers ?? []), {
+                          name: "", role: "", institution: "", institutionTier: "Tier 2 (NIT/State)" as const,
+                          degree: "", yearsExperience: 0, priorExits: 0, linkedinUrl: "",
+                          linkedinConnections: 0, domainExpertiseYears: 0,
+                        }];
+                        const next = { ...data, teamMembers: members };
+                        setData(next); save(next, step);
+                      }}
+                    >
+                      + Add Member
+                    </button>
+                  )}
+                </div>
+
+                {(data.teamMembers ?? []).length === 0 && (
+                  <p style={{ color: "var(--text-muted)", fontSize: 13, textAlign: "center", padding: "20px 0" }}>
+                    Add up to 3 team members to boost your People Score
+                  </p>
+                )}
+
+                {(data.teamMembers ?? []).map((m, idx) => (
+                  <div key={idx} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--bg-border)", borderRadius: 12, padding: 16, marginBottom: 12 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+                      <p style={{ fontWeight: 600, fontSize: 13, margin: 0 }}>Team Member {idx + 1}</p>
+                      <button
+                        style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 18 }}
+                        onClick={() => {
+                          const members = (data.teamMembers ?? []).filter((_, i) => i !== idx);
+                          const next = { ...data, teamMembers: members };
+                          setData(next); save(next, step);
+                        }}
+                      >×</button>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                      <Field label="Name">
+                        <input className="input-base" value={m.name} onChange={e => {
+                          const members = [...(data.teamMembers ?? [])];
+                          members[idx] = { ...members[idx], name: e.target.value };
+                          const next = { ...data, teamMembers: members };
+                          setData(next); save(next, step);
+                        }} placeholder="Jane Doe" />
+                      </Field>
+                      <Field label="Role">
+                        <input className="input-base" value={m.role} onChange={e => {
+                          const members = [...(data.teamMembers ?? [])];
+                          members[idx] = { ...members[idx], role: e.target.value };
+                          const next = { ...data, teamMembers: members };
+                          setData(next); save(next, step);
+                        }} placeholder="CTO" />
+                      </Field>
+                      <Field label="Institution">
+                        <input className="input-base" value={m.institution} onChange={e => {
+                          const members = [...(data.teamMembers ?? [])];
+                          members[idx] = { ...members[idx], institution: e.target.value };
+                          const next = { ...data, teamMembers: members };
+                          setData(next); save(next, step);
+                        }} placeholder="NIT Trichy..." />
+                      </Field>
+                      <Field label="Tier">
+                        <select className="input-base" value={m.institutionTier} onChange={e => {
+                          const members = [...(data.teamMembers ?? [])];
+                          members[idx] = { ...members[idx], institutionTier: e.target.value as any };
+                          const next = { ...data, teamMembers: members };
+                          setData(next); save(next, step);
+                        }}>
+                          <option>Tier 1 (IIT/IIM/Ivy)</option>
+                          <option>Tier 2 (NIT/State)</option>
+                          <option>Tier 3 / Other</option>
+                        </select>
+                      </Field>
+                      <Field label="Prior Exits">
+                        <input className="input-base" type="number" min={0} value={m.priorExits} onChange={e => {
+                          const members = [...(data.teamMembers ?? [])];
+                          members[idx] = { ...members[idx], priorExits: parseInt(e.target.value) || 0 };
+                          const next = { ...data, teamMembers: members };
+                          setData(next); save(next, step);
+                        }} />
+                      </Field>
+                      <Field label="Domain Years">
+                        <input className="input-base" type="number" min={0} value={m.domainExpertiseYears} onChange={e => {
+                          const members = [...(data.teamMembers ?? [])];
+                          members[idx] = { ...members[idx], domainExpertiseYears: parseInt(e.target.value) || 0 };
+                          const next = { ...data, teamMembers: members };
+                          setData(next); save(next, step);
+                        }} />
+                      </Field>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Advisors */}
+              <Field label="Advisors / Angels">
+                <input className="input-base" value={data.advisors} onChange={e => set("advisors", e.target.value)} placeholder="e.g. Deepak Shenoy (Capitalmind), Ritesh Malik (Innov8)" />
               </Field>
-              <div style={{ gridColumn: "1/-1" }}>
-                <Field label="Key Team Members">
-                  <input {...inp("keyMembers")} placeholder="e.g. Jane (CTO, ex-Google), Bob (COO, ex-McKinsey)" />
-                </Field>
-              </div>
-              <div style={{ gridColumn: "1/-1" }}>
-                <Field label="Advisors">
-                  <input {...inp("advisors")} placeholder="Notable advisors / investors" />
-                </Field>
-              </div>
+
+              {/* Team size */}
+              <Field label="Total Team Size">
+                <input className="input-base" type="number" min={1} value={data.teamSize} onChange={e => set("teamSize", parseInt(e.target.value, 10))} />
+              </Field>
             </div>
           )}
+
 
           {/* Step 3 */}
           {step === 3 && (
